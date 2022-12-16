@@ -435,11 +435,11 @@ class Level1(tools._State):
         if checkpoint:
             checkpoint.kill()
 
-            #for i in range(1,11):
-                #if checkpoint.name == str(i):
-                    #for index, enemy in enumerate(self.enemy_group_list[i -1]):
-                        #enemy.rect.x = self.viewport.right + (index * 60)
-                    #self.enemy_group.add(self.enemy_group_list[i-1])
+            for i in range(1,11):
+                if checkpoint.name == str(i):
+                    for index, enemy in enumerate(self.enemy_group_list[i -1]):
+                        enemy.rect.x = self.viewport.right + (index * 60)
+                    self.enemy_group.add(self.enemy_group_list[i-1])
 
             if checkpoint.name == '11':
                 self.mario.state = c.FLAGPOLE

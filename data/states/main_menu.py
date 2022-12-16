@@ -34,6 +34,9 @@ class Menu(tools._State):
         self.cursor = pg.sprite.Sprite()
         self.cursor.state = c.PLAYER1
 
+        self.game_info = persist
+        self.persist = self.game_info
+        self.game_info[c.MARIO_DEAD] = False
 
     def setup_cursor(self):
         """Creates the mushroom cursor to select 1 or 2 player game"""

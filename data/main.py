@@ -14,20 +14,22 @@ def main():
                   c.GAME_OVER: load_screen.GameOver()}
 
     run_it.setup_states(state_dict, c.MAIN_MENU)
-    keyboard = Controller()
-    moves = [Key.right,Key.right,Key.right,Key.right,Key.right,Key.right, 'a',Key.right,'a']
+    #keyboard = Controller()
+    #moves = [Key.right,Key.right,Key.right,Key.right,Key.right,Key.right, 'a',Key.right,'a']
     counter = 0
 
-    while not run_it.done:
-        if counter < len(moves):        
-            keyboard.press(moves[counter])
+    while not run_it.state.game_info[c.MARIO_DEAD]:
+        #if counter < len(moves):        
+        #    keyboard.press(moves[counter])
 
         run_it.main()
 
-        if counter < len(moves):        
-            keyboard.release(moves[counter])
+        #if counter < len(moves):        
+        #    keyboard.release(moves[counter])
+
         counter = counter + 1
         print(run_it.state.mario.rect.x)
+
 
 
 
