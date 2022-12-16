@@ -36,9 +36,9 @@ class Enemy(pg.sprite.Sprite):
     def set_velocity(self):
         """Sets velocity vector based on direction"""
         if self.direction == c.LEFT:
-            self.x_vel = -2
+            self.x_vel = -1
         else:
-            self.x_vel = 2
+            self.x_vel = 1
 
         self.y_vel = 0
 
@@ -108,9 +108,9 @@ class Enemy(pg.sprite.Sprite):
         """Transitions enemy into a DEATH JUMP state"""
         self.y_vel = -8
         if direction == c.RIGHT:
-            self.x_vel = 2
+            self.x_vel = 1
         else:
-            self.x_vel = -2
+            self.x_vel = -1
         self.gravity = .5
         self.frame_index = 3
         self.image = self.frames[self.frame_index]

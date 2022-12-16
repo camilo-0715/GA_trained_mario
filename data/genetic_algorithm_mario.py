@@ -12,6 +12,7 @@ run_it = tools.Control(setup.ORIGINAL_CAPTION)
 
 def fitness_func(solution, solution_idx):
 
+
     #solution deberia ser una lista de movimientos  
     global run_it
     points = 0
@@ -30,6 +31,7 @@ def fitness_func(solution, solution_idx):
             moves.append('a')           
 
     counter = 0
+
     while not run_it.done:
 
         if counter < len(moves):        
@@ -47,18 +49,24 @@ def fitness_func(solution, solution_idx):
             break
 
 
+    """
     for i in range(counter):
-        if solution[i] >= 0.0 and  solution[i] < 1.9:
+        if solution[i] >= 0.0 and  solution[i] < min_jump_prob:
             points = points + 2           
         
         elif solution[i] >= min_jump_prob and solution[i] <= max_jump_prob:
             points = points + 1
-
+    """
 
     if run_it.state.mario.rect.x >= 8749:
         points = points + 100000
 
+
+    points = run_it.state.game_info[c.SCORE] + run_it.state.mario.rect.x
+    run_it.main()
+    run_it.state.game_info[c.SCORE] = 0
     print("individual points: ", points )
+
     return points
 
 def callback_generation(ga_instance):
@@ -85,17 +93,17 @@ def main():
 
 
     ga_instance = pygad.GA(num_generations=100,
-                               num_parents_mating=1,
-                               mutation_type='random', 
-                               mutation_probability=0.1,
+                               num_parents_mating=5,
+                               mutation_type='swap', 
+                               mutation_probability=1,
                                fitness_func=fitness_func,
-                               sol_per_pop=3, 
-                               num_genes=10000,
+                               sol_per_pop=10, 
+                               num_genes=2000,
                                init_range_low=0.0,
                                init_range_high=2.0,
                                random_mutation_min_val=0.0,
                                random_mutation_max_val=3.0,
-                               mutation_by_replacement=True,
+                               mutation_by_replacement=False,
                                callback_generation=callback_generation)
 
     ga_instance.run()
