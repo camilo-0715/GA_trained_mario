@@ -131,6 +131,7 @@ class Coin_box(pg.sprite.Sprite):
                                      score_group))
             #setup.SFX['coin'].play()
         else:
+            pass
             #setup.SFX['powerup_appears'].play()
 
 
