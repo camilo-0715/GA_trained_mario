@@ -106,10 +106,6 @@ def execute_generated_win(win_moves):
     
         if counter < len(moves):                
             keyboard.release(moves[counter])
-        
-        if (run_it.state.game_info[c.MARIO_DEAD]):
-            points = points - 500
-            break
  
         if run_it.state.mario.rect.x > 8700:    
             while not run_it.state.done:
