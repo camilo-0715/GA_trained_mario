@@ -16,7 +16,7 @@ f = open('winning_solutions.txt', 'a')
 writer = csv.writer(f)
 gen_ctr = 0
     
-min_jump_prob = 1.4
+min_jump_prob = 1.8
 max_jump_prob = 1.9
 stop_prob = 2.0
 
