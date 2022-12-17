@@ -1343,7 +1343,7 @@ class Level1(tools._State):
             self.persist[c.LIVES] -= 1
 
         if self.persist[c.LIVES] == 100: #vidas a las que mueres
-            self.next = c.GAME_OVER
+            self.next = c.MAIN_MENU
             self.game_info[c.CAMERA_START_X] = 0
         elif self.mario.dead == False:
             self.next = c.MAIN_MENU
@@ -1405,7 +1405,7 @@ class Level1(tools._State):
             self.flag_timer = self.current_time
         elif (self.current_time - self.flag_timer) > 2000:
             self.set_game_info_values()
-            self.next = c.GAME_OVER
+            self.next = c.MAIN_MENU
             self.sound_manager.stop_music()
             self.done = True
 
