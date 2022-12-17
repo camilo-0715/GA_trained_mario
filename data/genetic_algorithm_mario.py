@@ -16,14 +16,13 @@ gen_ctr = 0
     
 def mario_fitness(solution, solution_idx):
 
-    #solution deberia ser una lista de movimientos  
     global run_it
     points = 0
     
     keyboard = Controller()
     moves = []
 
-    min_jump_prob = 1.6
+    min_jump_prob = 1.8
     max_jump_prob = 1.9
     stop_prob = 2.0
 
@@ -38,7 +37,8 @@ def mario_fitness(solution, solution_idx):
 
     counter = 0
     has_printed = False
-    while not run_it.done:
+
+    while True:
         
         if counter < len(moves):        
             keyboard.press(moves[counter])
@@ -50,18 +50,19 @@ def mario_fitness(solution, solution_idx):
         
         
         if (run_it.state.game_info[c.MARIO_DEAD]):
-            points = points - 100
+            points = points - 500
             break
-        if counter != 0:
-            try:
-                if run_it.state.state == c.IN_CASTLE and has_printed == False:    
-                    writer.writerow(solution[:counter])
-                    has_printed = True
-            except AttributeError:
-                pass
+ 
+        if run_it.state.mario.rect.x > 8700:    
+            writer.writerow(solution[:counter])
+            while not run_it.state.done:
+                run_it.main()
+                
+            break
+
         counter = counter + 1
         
-    points = run_it.state.mario.rect.x + run_it.state.game_info[c.SCORE] - run_it.state.overhead_info_display.time
+    points = points + run_it.state.mario.rect.x + run_it.state.game_info[c.SCORE] - run_it.state.overhead_info_display.time
     run_it.state.game_info[c.SCORE] = 0
 
     run_it.main()
@@ -98,7 +99,7 @@ def main():
         ga_instance = pygad.GA(num_generations=100,
                                 num_parents_mating=2,
                                 mutation_type='scramble', 
-                                mutation_probability=0.25,
+                                mutation_probability=0.35,
                                 fitness_func=mario_fitness,
                                 sol_per_pop=5, 
                                 num_genes=2500,
