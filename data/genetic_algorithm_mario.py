@@ -6,10 +6,14 @@ from . import constants as c
 from pynput.keyboard import Key, Controller
 import time
 import numpy as np
+import csv
 
 run_it = tools.Control(setup.ORIGINAL_CAPTION)
 
-
+f = open('winning_solutions.txt', 'w')
+writer = csv.writer(f)
+gen_ctr = 0
+    
 def mario_fitness(solution, solution_idx):
 
     #solution deberia ser una lista de movimientos  
@@ -19,50 +23,58 @@ def mario_fitness(solution, solution_idx):
     keyboard = Controller()
     moves = []
 
-    min_jump_prob = 1.8
-    max_jump_prob = 2.0
+    min_jump_prob = 1.6
+    max_jump_prob = 1.9
+    stop_prob = 2.0
 
     for i in solution:
         if i >= 0.0 and  i < min_jump_prob:
             moves.append(Key.right)
            
         elif i >= min_jump_prob and i <= max_jump_prob:
-            moves.append('a')           
+            moves.append('a')      
+        elif i >= max_jump_prob and i <= stop_prob:
+            moves.append(" ")          
 
     counter = 0
+    has_printed = False
     while not run_it.done:
-
+        
         if counter < len(moves):        
             keyboard.press(moves[counter])
-
+        
         run_it.main()
-
+    
         if counter < len(moves):                
             keyboard.release(moves[counter])
         
-        counter = counter + 1
-
+        
         if (run_it.state.game_info[c.MARIO_DEAD]):
             points = points - 100
             break
-
-
-    points = run_it.state.mario.rect.x + run_it.state.game_info[c.SCORE]
-    
+        if counter != 0:
+            try:
+                if run_it.state.state == c.IN_CASTLE and has_printed == False:    
+                    writer.writerow(solution[:counter])
+                    has_printed = True
+            except AttributeError:
+                pass
+        counter = counter + 1
+        
+    points = run_it.state.mario.rect.x + run_it.state.game_info[c.SCORE] - run_it.state.overhead_info_display.time
     run_it.state.game_info[c.SCORE] = 0
-    if run_it.state.mario.rect.x >= 8749:
-        points = points + 100000
 
     run_it.main()
     print("individual points: ", points )
+   
     return points
 
 def callback_generation(ga_instance):
     
     #best_sol_fitness = ga_instance.best_solution()[1]
-    
     print("Generation  = {generation}".format(generation=ga_instance.generations_completed))
-
+    global gen_ctr
+    gen_ctr += 1;
 
 #    print("Generation  = {generation}".format(generation=ga_instance.generations_completed))
 #    print("Fitness     = {fitness}".format(fitness=ga_instance.best_solution()[1]))
@@ -70,28 +82,35 @@ def callback_generation(ga_instance):
 
 
 def main():
-    """Add states to control here."""
+    try:
+        """Add states to control here."""
 
-    state_dict = {c.MAIN_MENU: main_menu.Menu(),
-                  c.LEVEL1: level1.Level1(),
-                  c.GAME_OVER: load_screen.GameOver()}
+        
+        
+        state_dict = {c.MAIN_MENU: main_menu.Menu(),
+                    c.LEVEL1: level1.Level1(),
+                    c.GAME_OVER: load_screen.GameOver()}
 
-    run_it.setup_states(state_dict, c.MAIN_MENU)
+        run_it.setup_states(state_dict, c.MAIN_MENU)
 
 
 
-    ga_instance = pygad.GA(num_generations=100,
-                               num_parents_mating=1,
-                               mutation_type='scramble', 
-                               mutation_probability=0.25,
-                               fitness_func=mario_fitness,
-                               sol_per_pop=3, 
-                               num_genes=10000,
-                               init_range_low=0.0,
-                               init_range_high=2.0,
-                               random_mutation_min_val=0.0,
-                               random_mutation_max_val=3.0,
-                               mutation_by_replacement=False,
-                               callback_generation=callback_generation)
+        ga_instance = pygad.GA(num_generations=100,
+                                num_parents_mating=2,
+                                mutation_type='scramble', 
+                                mutation_probability=0.25,
+                                fitness_func=mario_fitness,
+                                sol_per_pop=5, 
+                                num_genes=2500,
+                                init_range_low=0.0,
+                                init_range_high=2.0,
+                                random_mutation_min_val=0.0,
+                                random_mutation_max_val=3.0,
+                                mutation_by_replacement=False,
+                                callback_generation=callback_generation)
 
-    ga_instance.run()
+        ga_instance.run()
+
+        ga_instance.plot_fitness()
+    except KeyboardInterrupt:
+        ga_instance.plot_fitness()
