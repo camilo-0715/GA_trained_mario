@@ -86,44 +86,38 @@ def callback_generation(ga_instance):
 def main():
     """Add states to control here."""
 
-    if arg != " ":
+    try: 
         state_dict = {c.MAIN_MENU: main_menu.Menu(),
-                        c.LEVEL1: level1.Level1(),
-                        c.GAME_OVER: load_screen.GameOver()}
+                    c.LEVEL1: level1.Level1(),
+                    c.GAME_OVER: load_screen.GameOver()}
 
         run_it.setup_states(state_dict, c.MAIN_MENU)
-            
-        with open(arg) as f:
-            last_line = f.readlines()[-1]
-            
-            execute_generated_win(last_line)
-        
-    else:
-        try: 
-            state_dict = {c.MAIN_MENU: main_menu.Menu(),
-                        c.LEVEL1: level1.Level1(),
-                        c.GAME_OVER: load_screen.GameOver()}
 
-            run_it.setup_states(state_dict, c.MAIN_MENU)
 
-            ga_instance = pygad.GA(num_generations=100,
-                               num_parents_mating=5,
-                               mutation_type='swap', 
-                               mutation_probability=1,
-                               fitness_func=fitness_func,
-                               sol_per_pop=10, 
-                               num_genes=2000,
-                               init_range_low=0.0,
-                               init_range_high=2.0,
-                               random_mutation_min_val=0.0,
-                               random_mutation_max_val=3.0,
-                               mutation_by_replacement=False,
-                               callback_generation=callback_generation)
+        if (os.path.isfile('./mario_swap.pkl')):
+            ga_instance = pygad.load("mario_swap")
 
-            ga_instance.run()
+        else:
+            ga_instance = pygad.GA(num_generations=1,
+                            num_parents_mating=5,
+                            mutation_type='swap', 
+                            mutation_probability=1,
+                            fitness_func=fitness_func,
+                            sol_per_pop=10, 
+                            num_genes=2000,
+                            init_range_low=0.0,
+                            init_range_high=2.0,
+                            random_mutation_min_val=0.0,
+                            random_mutation_max_val=3.0,
+                            mutation_by_replacement=False,
+                            callback_generation=callback_generation)
 
-            ga_instance.plot_fitness()
-        except KeyboardInterrupt:
-            ga_instance.plot_fitness()
+        ga_instance.run()
+
+        ga_instance.plot_fitness()
+        ga_instance.save("mario_swap")
+    except KeyboardInterrupt:
+        ga_instance.plot_fitness()
+        ga_instance.save("mario_swap")
 
 
