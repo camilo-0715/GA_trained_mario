@@ -84,15 +84,27 @@ def callback_generation(ga_instance):
 def main():
     """Add states to control here."""
 
-    state_dict = {c.MAIN_MENU: main_menu.Menu(),
-                  c.LEVEL1: level1.Level1(),
-                  c.GAME_OVER: load_screen.GameOver()}
+    if arg != " ":
+        state_dict = {c.MAIN_MENU: main_menu.Menu(),
+                        c.LEVEL1: level1.Level1(),
+                        c.GAME_OVER: load_screen.GameOver()}
 
-    run_it.setup_states(state_dict, c.MAIN_MENU)
+        run_it.setup_states(state_dict, c.MAIN_MENU)
+            
+        with open(arg) as f:
+            last_line = f.readlines()[-1]
+            
+            execute_generated_win(last_line)
+        
+    else:
+        try: 
+            state_dict = {c.MAIN_MENU: main_menu.Menu(),
+                        c.LEVEL1: level1.Level1(),
+                        c.GAME_OVER: load_screen.GameOver()}
 
+            run_it.setup_states(state_dict, c.MAIN_MENU)
 
-
-    ga_instance = pygad.GA(num_generations=100,
+            ga_instance = pygad.GA(num_generations=100,
                                num_parents_mating=5,
                                mutation_type='swap', 
                                mutation_probability=1,
@@ -106,4 +118,10 @@ def main():
                                mutation_by_replacement=False,
                                callback_generation=callback_generation)
 
-    ga_instance.run()
+            ga_instance.run()
+
+            ga_instance.plot_fitness()
+        except KeyboardInterrupt:
+            ga_instance.plot_fitness()
+
+
