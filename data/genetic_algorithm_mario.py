@@ -9,6 +9,7 @@ import time
 import numpy as np
 import csv
 import os
+import sys
 
 run_it = tools.Control(setup.ORIGINAL_CAPTION)
 
@@ -113,18 +114,27 @@ def execute_generated_win(win_moves):
             break
         counter = counter + 1
         
-def main(arg):
+def main(arg_list):
 
     """Add states to control here."""
 
-    if arg != " ":
+    winning_file = ""
+    load_model_flag = False
+
+    for arg in arg_list:
+        if (arg == "winning_solution.txt"):
+            winning_file = arg
+        elif (arg == "--load-model"):
+            load_model_flag = True
+
+    if winning_file != "":
         state_dict = {c.MAIN_MENU: main_menu.Menu(),
                         c.LEVEL1: level1.Level1(),
                         c.GAME_OVER: load_screen.GameOver()}
 
         run_it.setup_states(state_dict, c.MAIN_MENU)
             
-        with open(arg) as f:
+        with open(winning_file) as f:
             last_line = f.readlines()[-1]
             
             execute_generated_win(last_line)
@@ -138,23 +148,28 @@ def main(arg):
             run_it.setup_states(state_dict, c.MAIN_MENU)
 
 
-
-            ga_instance = pygad.GA(num_generations=1000,
-                                    num_parents_mating=2,
-                                    mutation_type='scramble', 
-                                    mutation_probability=0.35,
-                                    fitness_func=mario_fitness,
-                                    sol_per_pop=5, 
-                                    num_genes=2500,
-                                    init_range_low=0.0,
-                                    init_range_high=2.0,
-                                    random_mutation_min_val=0.0,
-                                    random_mutation_max_val=3.0,
-                                    mutation_by_replacement=False,
-                                    callback_generation=callback_generation)
+            if (os.path.isfile('./mario_swap.pkl') and load_model_flag):
+                ga_instance = pygad.load("mario_swap")
+            
+            else:
+                ga_instance = pygad.GA(num_generations=2,
+                                        num_parents_mating=2,
+                                        mutation_type='scramble', 
+                                        mutation_probability=0.35,
+                                        fitness_func=mario_fitness,
+                                        sol_per_pop=5, 
+                                        num_genes=2500,
+                                        init_range_low=0.0,
+                                        init_range_high=2.0,
+                                        random_mutation_min_val=0.0,
+                                        random_mutation_max_val=3.0,
+                                        mutation_by_replacement=False,
+                                        callback_generation=callback_generation)
 
             ga_instance.run()
 
             ga_instance.plot_fitness()
+            ga_instance.save("mario_model")
         except KeyboardInterrupt:
             ga_instance.plot_fitness()
+            ga_instance.save("mario_model")
