@@ -6,6 +6,8 @@ from . import constants as c
 from pynput.keyboard import Key, Controller
 import time
 import numpy as np
+import csv
+import os
 
 run_it = tools.Control(setup.ORIGINAL_CAPTION)
 
