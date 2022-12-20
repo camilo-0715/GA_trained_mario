@@ -21,9 +21,12 @@ min_jump_prob = 1.8
 max_jump_prob = 1.9
 stop_prob = 2.0
 
+best_solution_pts = 0
+best_solution = []
+
 def mario_fitness(solution, solution_idx):
 
-    global run_it
+    global run_it, best_solution, best_solution_pts
     points = 0
     
     keyboard = Controller()
@@ -64,6 +67,11 @@ def mario_fitness(solution, solution_idx):
         counter = counter + 1
         
     points = points + run_it.state.mario.rect.x + run_it.state.game_info[c.SCORE] - run_it.state.overhead_info_display.time
+    
+    if points > best_solution_pts:
+        best_solution_pts = points
+        best_solution = solution[:counter]
+        
     run_it.state.game_info[c.SCORE] = 0
 
     run_it.main()
@@ -113,6 +121,17 @@ def execute_generated_win(win_moves):
                 run_it.main()
             break
         counter = counter + 1
+
+def format_time():
+    current_time = time.ctime(int(time.time()))
+    sliced_t = current_time.split(" ")
+    print(sliced_t)
+    day = sliced_t[2]
+    month = sliced_t[1]
+    year = sliced_t[4]
+    hour = sliced_t[3]
+    
+    return str(day) + "-" + str(month) + "-" + str(year) + "-" + str(hour)
         
 def main(arg_list):
 
@@ -136,9 +155,7 @@ def main(arg_list):
             
         with open(winning_file) as f:
             last_line = f.readlines()[-1]
-            
             execute_generated_win(last_line)
-        
     else:
         try: 
             state_dict = {c.MAIN_MENU: main_menu.Menu(),
@@ -146,7 +163,6 @@ def main(arg_list):
                         c.GAME_OVER: load_screen.GameOver()}
 
             run_it.setup_states(state_dict, c.MAIN_MENU)
-
 
             if (os.path.isfile('./mario_swap.pkl') and load_model_flag):
                 ga_instance = pygad.load("mario_swap")
@@ -167,9 +183,18 @@ def main(arg_list):
                                         callback_generation=callback_generation)
 
             ga_instance.run()
-
+            filename = "best_solution_" + format_time() + ".txt"
+            best_sol_f = open(filename, 'w')
+            writer = csv.writer(best_sol_f)
+            writer.writerow(best_solution)
             ga_instance.plot_fitness()
-            ga_instance.save("mario_model")
+            
         except KeyboardInterrupt:
+            filename = "best_solution_" + format_time() + ".txt"
+            best_sol_f = open(filename, 'w')
+            writer = csv.writer(best_sol_f)
+            writer.writerow(best_solution)
+            print(best_solution)
             ga_instance.plot_fitness()
             ga_instance.save("mario_model")
+
