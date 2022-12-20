@@ -168,7 +168,7 @@ def main(arg_list):
                 ga_instance = pygad.load("mario_swap")
             
             else:
-                ga_instance = pygad.GA(num_generations=2,
+                ga_instance = pygad.GA(num_generations=500,
                                         num_parents_mating=2,
                                         mutation_type='scramble', 
                                         mutation_probability=0.35,
@@ -188,6 +188,7 @@ def main(arg_list):
             writer = csv.writer(best_sol_f)
             writer.writerow(best_solution)
             ga_instance.plot_fitness()
+            ga_instance.save("mario_model")
             
         except KeyboardInterrupt:
             filename = "best_solution_" + format_time() + ".txt"
