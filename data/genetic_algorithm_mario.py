@@ -20,9 +20,12 @@ min_jump_prob = 1.8
 max_jump_prob = 1.9
 stop_prob = 2.0
 
+best_solution_pts = 0
+best_solution = []
+
 def mario_fitness(solution, solution_idx):
 
-    global run_it
+    global run_it, best_solution, best_solution_pts
     points = 0
     
     keyboard = Controller()
@@ -63,6 +66,11 @@ def mario_fitness(solution, solution_idx):
         counter = counter + 1
         
     points = points + run_it.state.mario.rect.x + run_it.state.game_info[c.SCORE] - run_it.state.overhead_info_display.time
+    
+    if points > best_solution_pts:
+        best_solution_pts = points
+        best_solution = solution[:counter]
+        
     run_it.state.game_info[c.SCORE] = 0
 
     run_it.main()
@@ -112,7 +120,18 @@ def execute_generated_win(win_moves):
                 run_it.main()
             break
         counter = counter + 1
-        
+
+def format_time():
+    current_time = time.ctime(int(time.time()))
+    sliced_t = current_time.split(" ")
+    print(sliced_t)
+    day = sliced_t[2]
+    month = sliced_t[1]
+    year = sliced_t[4]
+    hour = sliced_t[3]
+    
+    return str(day) + "-" + str(month) + "-" + str(year) + "-" + str(hour)
+
 def main(arg):
 
     """Add states to control here."""
@@ -126,9 +145,7 @@ def main(arg):
             
         with open(arg) as f:
             last_line = f.readlines()[-1]
-            
             execute_generated_win(last_line)
-        
     else:
         try: 
             state_dict = {c.MAIN_MENU: main_menu.Menu(),
@@ -137,9 +154,7 @@ def main(arg):
 
             run_it.setup_states(state_dict, c.MAIN_MENU)
 
-
-
-            ga_instance = pygad.GA(num_generations=1000,
+            ga_instance = pygad.GA(num_generations=2,
                                     num_parents_mating=2,
                                     mutation_type='scramble', 
                                     mutation_probability=0.35,
@@ -151,10 +166,20 @@ def main(arg):
                                     random_mutation_min_val=0.0,
                                     random_mutation_max_val=3.0,
                                     mutation_by_replacement=False,
+                                    save_best_solutions=True,
                                     callback_generation=callback_generation)
 
             ga_instance.run()
-
+            filename = "best_solution_" + format_time() + ".txt"
+            best_sol_f = open(filename, 'w')
+            writer = csv.writer(best_sol_f)
+            writer.writerow(best_solution)
             ga_instance.plot_fitness()
+            
         except KeyboardInterrupt:
+            filename = "best_solution_" + format_time() + ".txt"
+            best_sol_f = open(filename, 'w')
+            writer = csv.writer(best_sol_f)
+            writer.writerow(best_solution)
+            print(best_solution)
             ga_instance.plot_fitness()
