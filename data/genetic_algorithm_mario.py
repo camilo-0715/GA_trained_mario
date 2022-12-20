@@ -141,9 +141,9 @@ def main(arg_list):
     load_model_flag = False
 
     for arg in arg_list:
-        if (arg == "winning_solution.txt"):
+        if (arg != "--load-model"):
             winning_file = arg
-        elif (arg == "--load-model"):
+        else:
             load_model_flag = True
 
     if winning_file != "":
